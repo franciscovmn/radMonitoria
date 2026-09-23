@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>{% block titulo %}Monitoria IFPB{% endblock %}</title>
+</head>
+<body>
+  <header>
+    <h1>Monitoria IFPB</h1>
+
+    <nav>
+      {% if user.is_authenticated %}
+        <span>{{ user.username }}</span>
+        <form action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit">Sair</button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}">Entrar</a>
+        <a href="{% url 'cadastro' %}">Cadastrar</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  {% if messages %}
+    <ul>
+      {% for mensagem in messages %}
+        <li>{{ mensagem }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <main>
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>IFPB - {% now "Y" %}</p>
+  </footer>
+</body>
+</html>
