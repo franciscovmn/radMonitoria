@@ -5,6 +5,24 @@
 {% block conteudo %}
   <h2>Abrir dúvida</h2>
 
+  <p>
+    Escolha a disciplina para ver os horários de atendimento:
+    {% for item in disciplinas %}
+      <a href="?disciplina={{ item.pk }}">{{ item.codigo }}</a>
+    {% endfor %}
+  </p>
+
+  {% if disciplina %}
+    <h3>Horários de atendimento de {{ disciplina.nome }}</h3>
+    <ul>
+      {% for horario in disciplina.horarios.all %}
+        <li>{{ horario }} com {{ horario.monitor.username }}</li>
+      {% empty %}
+        <li>Nenhum horário cadastrado.</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
