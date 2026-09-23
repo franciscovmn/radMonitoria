@@ -21,4 +21,11 @@
       <button type="submit">Assumir</button>
     </form>
   {% endif %}
+  {% if pode_responder %}
+    <form action="{% url 'duvidas:responder' duvida.pk %}" method="post">
+      {% csrf_token %}
+      {{ form_resposta.as_p }}
+      <button type="submit">Responder</button>
+    </form>
+  {% endif %}
 {% endblock %}

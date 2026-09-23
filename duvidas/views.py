@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView
 
-from .forms import DuvidaForm
+from .forms import DuvidaForm, RespostaForm
 from .models import Disciplina, Duvida
 
 
@@ -72,6 +72,12 @@ class DuvidaDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
         contexto["pode_assumir"] = self.object.pode_ser_assumida_por(self.request.user)
+        contexto["pode_responder"] = (
+            self.object.monitor_id == self.request.user.pk
+            and self.object.situacao == Duvida.Situacao.EM_ATENDIMENTO
+        )
+        if contexto["pode_responder"]:
+            contexto["form_resposta"] = RespostaForm()
         return contexto
 
     def get_queryset(self):
@@ -96,4 +102,27 @@ def assumir_duvida(request, pk):
     duvida.situacao = Duvida.Situacao.EM_ATENDIMENTO
     duvida.save(update_fields=["monitor", "situacao", "atualizada_em"])
     messages.success(request, "Dúvida assumida.")
+    return redirect("duvidas:detalhe", pk=pk)
+
+
+@login_required
+def responder_duvida(request, pk):
+    duvida = get_object_or_404(Duvida, pk=pk)
+    if duvida.monitor_id != request.user.pk:
+        raise PermissionDenied
+    if duvida.situacao != Duvida.Situacao.EM_ATENDIMENTO:
+        messages.error(request, "Esta dúvida não está em atendimento.")
+        return redirect("duvidas:detalhe", pk=pk)
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    form = RespostaForm(request.POST, instance=duvida)
+    if not form.is_valid():
+        messages.error(request, "A resposta não pode ficar em branco.")
+        return redirect("duvidas:detalhe", pk=pk)
+
+    duvida = form.save(commit=False)
+    duvida.situacao = Duvida.Situacao.RESPONDIDA
+    duvida.save(update_fields=["resposta", "situacao", "atualizada_em"])
+    messages.success(request, "Dúvida respondida.")
     return redirect("duvidas:detalhe", pk=pk)
