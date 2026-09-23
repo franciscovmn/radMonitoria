@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, ListView
 
 from .forms import DuvidaForm
 from .models import Disciplina, Duvida
@@ -25,7 +25,7 @@ class CadastroView(CreateView):
 class DuvidaCreateView(LoginRequiredMixin, CreateView):
     form_class = DuvidaForm
     template_name = "duvidas/nova.html"
-    success_url = reverse_lazy("duvidas:nova")
+    success_url = reverse_lazy("duvidas:lista")
 
     def get_disciplina(self):
         return Disciplina.objects.filter(
@@ -46,3 +46,14 @@ class DuvidaCreateView(LoginRequiredMixin, CreateView):
         form.instance.situacao = Duvida.Situacao.ABERTA
         messages.success(self.request, "Dúvida aberta.")
         return super().form_valid(form)
+
+
+class DuvidaListView(LoginRequiredMixin, ListView):
+    model = Duvida
+    template_name = "duvidas/lista.html"
+    context_object_name = "duvidas"
+
+    def get_queryset(self):
+        return Duvida.objects.visiveis_para(self.request.user).select_related(
+            "disciplina", "autor", "monitor"
+        )

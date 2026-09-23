@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 
 
 class Disciplina(models.Model):
@@ -18,6 +19,15 @@ class Disciplina(models.Model):
 
     def __str__(self):
         return f"{self.codigo} - {self.nome}"
+
+
+class DuvidaQuerySet(models.QuerySet):
+    def visiveis_para(self, usuario):
+        if usuario.has_perm("duvidas.ver_todas_duvidas"):
+            return self
+        return self.filter(
+            Q(autor=usuario) | Q(disciplina__monitores=usuario)
+        ).distinct()
 
 
 class Duvida(models.Model):
@@ -54,6 +64,8 @@ class Duvida(models.Model):
     )
     criada_em = models.DateTimeField("aberta em", auto_now_add=True)
     atualizada_em = models.DateTimeField("atualizada em", auto_now=True)
+
+    objects = DuvidaQuerySet.as_manager()
 
     class Meta:
         ordering = ["-criada_em"]

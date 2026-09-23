@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block titulo %}Dúvidas - {{ block.super }}{% endblock %}
+
+{% block conteudo %}
+  <h2>Dúvidas</h2>
+
+  <ul>
+    {% for duvida in duvidas %}
+      <li>
+        {{ duvida.titulo }} - {{ duvida.disciplina.nome }} -
+        {{ duvida.autor.username }} -
+        Monitor: {{ duvida.monitor.username|default:"Nenhum" }} -
+        {{ duvida.get_situacao_display }}
+      </li>
+    {% empty %}
+      <li>Nenhuma dúvida encontrada.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
