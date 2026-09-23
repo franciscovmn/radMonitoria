@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ duvida.titulo }} - {{ block.super }}{% endblock %}
+
+{% block conteudo %}
+  <h2>{{ duvida.titulo }}</h2>
+  <p>{{ duvida.descricao }}</p>
+  <p>Disciplina: {{ duvida.disciplina.nome }}</p>
+  <p>Autor: {{ duvida.autor.username }}</p>
+  <p>Monitor responsável: {{ duvida.monitor.username|default:"Nenhum" }}</p>
+  <p>Situação: {{ duvida.get_situacao_display }}</p>
+  <p>Aberta em: {{ duvida.criada_em }}</p>
+  <p>Atualizada em: {{ duvida.atualizada_em }}</p>
+  {% if duvida.resposta %}
+    <h3>Resposta</h3>
+    <p>{{ duvida.resposta }}</p>
+  {% endif %}
+{% endblock %}

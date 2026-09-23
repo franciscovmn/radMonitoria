@@ -1,9 +1,10 @@
 from django.contrib import messages
+from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, DetailView, ListView
 
 from .forms import DuvidaForm
 from .models import Disciplina, Duvida
@@ -57,3 +58,15 @@ class DuvidaListView(LoginRequiredMixin, ListView):
         return Duvida.objects.visiveis_para(self.request.user).select_related(
             "disciplina", "autor", "monitor"
         )
+
+
+class DuvidaDetailView(LoginRequiredMixin, DetailView):
+    model = Duvida
+    template_name = "duvidas/detalhe.html"
+    context_object_name = "duvida"
+
+    def get_queryset(self):
+        return Duvida.objects.filter(
+            Q(pk__in=Duvida.objects.visiveis_para(self.request.user))
+            | Q(situacao__in=[Duvida.Situacao.RESPONDIDA, Duvida.Situacao.ENCERRADA])
+        ).select_related("disciplina", "autor", "monitor")

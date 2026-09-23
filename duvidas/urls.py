@@ -6,5 +6,6 @@ app_name = "duvidas"
 
 urlpatterns = [
     path("", views.DuvidaListView.as_view(), name="lista"),
+    path("duvidas/<int:pk>/", views.DuvidaDetailView.as_view(), name="detalhe"),
     path("duvidas/nova/", views.DuvidaCreateView.as_view(), name="nova"),
 ]
