@@ -28,4 +28,10 @@
       <button type="submit">Responder</button>
     </form>
   {% endif %}
+  {% if pode_encerrar %}
+    <form action="{% url 'duvidas:encerrar' duvida.pk %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Encerrar</button>
+    </form>
+  {% endif %}
 {% endblock %}

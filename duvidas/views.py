@@ -76,6 +76,10 @@ class DuvidaDetailView(LoginRequiredMixin, DetailView):
             self.object.monitor_id == self.request.user.pk
             and self.object.situacao == Duvida.Situacao.EM_ATENDIMENTO
         )
+        contexto["pode_encerrar"] = (
+            self.object.autor_id == self.request.user.pk
+            and self.object.situacao == Duvida.Situacao.RESPONDIDA
+        )
         if contexto["pode_responder"]:
             contexto["form_resposta"] = RespostaForm()
         return contexto
@@ -125,4 +129,21 @@ def responder_duvida(request, pk):
     duvida.situacao = Duvida.Situacao.RESPONDIDA
     duvida.save(update_fields=["resposta", "situacao", "atualizada_em"])
     messages.success(request, "Dúvida respondida.")
+    return redirect("duvidas:detalhe", pk=pk)
+
+
+@login_required
+def encerrar_duvida(request, pk):
+    duvida = get_object_or_404(Duvida, pk=pk)
+    if duvida.autor_id != request.user.pk:
+        raise PermissionDenied
+    if duvida.situacao != Duvida.Situacao.RESPONDIDA:
+        messages.error(request, "Esta dúvida não pode ser encerrada.")
+        return redirect("duvidas:detalhe", pk=pk)
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    duvida.situacao = Duvida.Situacao.ENCERRADA
+    duvida.save(update_fields=["situacao", "atualizada_em"])
+    messages.success(request, "Dúvida encerrada.")
     return redirect("duvidas:detalhe", pk=pk)
