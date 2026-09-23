@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block titulo %}Base de conhecimento - {{ block.super }}{% endblock %}
+
+{% block conteudo %}
+  <h2>Base de conhecimento</h2>
+
+  <form method="get">
+    <label for="busca">Buscar</label>
+    <input id="busca" type="search" name="q" value="{{ termo }}">
+    <button type="submit">Buscar</button>
+  </form>
+
+  <ul>
+    {% for duvida in duvidas %}
+      <li>
+        <h3>{{ duvida.titulo }}</h3>
+        <p>Disciplina: {{ duvida.disciplina.nome }}</p>
+        <p>{{ duvida.descricao }}</p>
+        <p>Resposta: {{ duvida.resposta }}</p>
+      </li>
+    {% empty %}
+      <li>Nenhuma dúvida encontrada.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

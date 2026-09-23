@@ -147,3 +147,25 @@ def encerrar_duvida(request, pk):
     duvida.save(update_fields=["situacao", "atualizada_em"])
     messages.success(request, "Dúvida encerrada.")
     return redirect("duvidas:detalhe", pk=pk)
+
+
+class BaseConhecimentoListView(LoginRequiredMixin, ListView):
+    model = Duvida
+    template_name = "duvidas/base_conhecimento.html"
+    context_object_name = "duvidas"
+
+    def get_queryset(self):
+        duvidas = Duvida.objects.filter(
+            situacao__in=[Duvida.Situacao.RESPONDIDA, Duvida.Situacao.ENCERRADA]
+        ).select_related("disciplina")
+        termo = self.request.GET.get("q", "").strip()
+        if termo:
+            duvidas = duvidas.filter(
+                Q(titulo__icontains=termo) | Q(descricao__icontains=termo)
+            )
+        return duvidas
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["termo"] = self.request.GET.get("q", "").strip()
+        return contexto
