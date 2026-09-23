@@ -5,13 +5,13 @@ from django.db.models import Q
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView
 
-from .forms import DuvidaForm, RespostaForm
-from .models import Disciplina, Duvida
+from .forms import DuvidaForm, HorarioAtendimentoForm, RespostaForm
+from .models import Disciplina, Duvida, HorarioAtendimento
 
 
 class CadastroView(CreateView):
@@ -169,3 +169,29 @@ class BaseConhecimentoListView(LoginRequiredMixin, ListView):
         contexto = super().get_context_data(**kwargs)
         contexto["termo"] = self.request.GET.get("q", "").strip()
         return contexto
+
+
+class HorarioAtendimentoCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    form_class = HorarioAtendimentoForm
+    template_name = "duvidas/meus_horarios.html"
+    success_url = reverse_lazy("duvidas:meus_horarios")
+
+    def test_func(self):
+        return self.request.user.disciplinas_monitoradas.exists()
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["usuario"] = self.request.user
+        kwargs["instance"] = HorarioAtendimento(monitor=self.request.user)
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["horarios"] = HorarioAtendimento.objects.filter(
+            monitor=self.request.user
+        ).select_related("disciplina")
+        return contexto
+
+    def form_valid(self, form):
+        messages.success(self.request, "Horário cadastrado.")
+        return super().form_valid(form)

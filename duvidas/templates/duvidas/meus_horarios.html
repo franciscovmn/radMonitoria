@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block titulo %}Meus horários - {{ block.super }}{% endblock %}
+
+{% block conteudo %}
+  <h2>Meus horários</h2>
+
+  <ul>
+    {% for horario in horarios %}
+      <li>{{ horario.disciplina.nome }} - {{ horario }}</li>
+    {% empty %}
+      <li>Nenhum horário cadastrado.</li>
+    {% endfor %}
+  </ul>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Cadastrar horário</button>
+  </form>
+{% endblock %}

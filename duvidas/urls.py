@@ -6,6 +6,7 @@ app_name = "duvidas"
 
 urlpatterns = [
     path("", views.DuvidaListView.as_view(), name="lista"),
+    path("meus-horarios/", views.HorarioAtendimentoCreateView.as_view(), name="meus_horarios"),
     path("base-conhecimento/", views.BaseConhecimentoListView.as_view(), name="base_conhecimento"),
     path("duvidas/<int:pk>/encerrar/", views.encerrar_duvida, name="encerrar"),
     path("duvidas/<int:pk>/responder/", views.responder_duvida, name="responder"),
