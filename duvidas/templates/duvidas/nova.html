@@ -5,27 +5,32 @@
 {% block conteudo %}
   <h2>Abrir dúvida</h2>
 
-  <p>
-    Escolha a disciplina para ver os horários de atendimento:
-    {% for item in disciplinas %}
-      <a href="?disciplina={{ item.pk }}">{{ item.codigo }}</a>
-    {% endfor %}
-  </p>
-
-  {% if disciplina %}
-    <h3>Horários de atendimento de {{ disciplina.nome }}</h3>
-    <ul>
-      {% for horario in disciplina.horarios.all %}
-        <li>{{ horario }} com {{ horario.monitor.username }}</li>
-      {% empty %}
-        <li>Nenhum horário cadastrado.</li>
+  <section class="caixa">
+    <strong>Horários de atendimento</strong>
+    <p class="discreto">Escolha a disciplina para ver os horários dos monitores.</p>
+    <div class="disciplinas">
+      {% for item in disciplinas %}
+        <a class="botao botao-secundario{% if item == disciplina %} ativo{% endif %}" href="?disciplina={{ item.pk }}">{{ item.codigo }}</a>
       {% endfor %}
-    </ul>
-  {% endif %}
+    </div>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Abrir dúvida</button>
-  </form>
+    {% if disciplina %}
+      <h3>{{ disciplina.nome }}</h3>
+      <ul class="horarios">
+        {% for horario in disciplina.horarios.all %}
+          <li>{{ horario }} com {{ horario.monitor.username }}</li>
+        {% empty %}
+          <li>Nenhum horário cadastrado.</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </section>
+
+  <section class="caixa">
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Abrir dúvida</button>
+    </form>
+  </section>
 {% endblock %}

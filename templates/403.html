@@ -3,6 +3,9 @@
 {% block titulo %}Acesso negado - {{ block.super }}{% endblock %}
 
 {% block conteudo %}
-  <h2>Acesso negado</h2>
-  <p>Você não tem permissão para realizar esta ação.</p>
+  <section class="caixa estreita">
+    <h2>Acesso negado</h2>
+    <p>Você não tem permissão para realizar esta ação.</p>
+    <a class="botao botao-secundario" href="{% url 'duvidas:lista' %}">Voltar para as dúvidas</a>
+  </section>
 {% endblock %}

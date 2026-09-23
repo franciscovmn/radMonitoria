@@ -5,17 +5,39 @@
 {% block conteudo %}
   <h2>Meus horários</h2>
 
-  <ul>
-    {% for horario in horarios %}
-      <li>{{ horario.disciplina.nome }} - {{ horario }}</li>
-    {% empty %}
-      <li>Nenhum horário cadastrado.</li>
-    {% endfor %}
-  </ul>
+  <section class="caixa tabela">
+    <table>
+      <thead>
+        <tr>
+          <th>Disciplina</th>
+          <th>Dia</th>
+          <th>Início</th>
+          <th>Fim</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for horario in horarios %}
+          <tr>
+            <td>{{ horario.disciplina.nome }}</td>
+            <td>{{ horario.get_dia_semana_display }}</td>
+            <td>{{ horario.inicio|time:"H:i" }}</td>
+            <td>{{ horario.fim|time:"H:i" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">Nenhum horário cadastrado.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Cadastrar horário</button>
-  </form>
+  <section class="caixa">
+    <h3>Novo horário</h3>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Cadastrar horário</button>
+    </form>
+  </section>
 {% endblock %}

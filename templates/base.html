@@ -1,46 +1,51 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Monitoria IFPB{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'duvidas/estilo.css' %}">
 </head>
 <body>
-  <header>
-    <h1>Monitoria IFPB</h1>
+  <header class="topo">
+    <div class="container">
+      <h1 class="marca"><a href="{% url 'duvidas:lista' %}">Monitoria IFPB</a></h1>
 
-    <nav>
-      {% if user.is_authenticated %}
-        <a href="{% url 'duvidas:lista' %}">Dúvidas</a>
-        <a href="{% url 'duvidas:base_conhecimento' %}">Base de conhecimento</a>
-        {% if user.disciplinas_monitoradas.exists %}
-          <a href="{% url 'duvidas:meus_horarios' %}">Meus horários</a>
+      <nav class="menu">
+        {% if user.is_authenticated %}
+          <a href="{% url 'duvidas:lista' %}">Dúvidas</a>
+          <a href="{% url 'duvidas:base_conhecimento' %}">Base de conhecimento</a>
+          {% if user.disciplinas_monitoradas.exists %}
+            <a href="{% url 'duvidas:meus_horarios' %}">Meus horários</a>
+          {% endif %}
+          <a href="{% url 'duvidas:nova' %}">Abrir dúvida</a>
+          <span class="usuario">{{ user.username }}</span>
+          <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="botao-sair">Sair</button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}">Entrar</a>
+          <a href="{% url 'cadastro' %}">Cadastrar</a>
         {% endif %}
-        <a href="{% url 'duvidas:nova' %}">Abrir dúvida</a>
-        <span>{{ user.username }}</span>
-        <form action="{% url 'logout' %}" method="post">
-          {% csrf_token %}
-          <button type="submit">Sair</button>
-        </form>
-      {% else %}
-        <a href="{% url 'login' %}">Entrar</a>
-        <a href="{% url 'cadastro' %}">Cadastrar</a>
-      {% endif %}
-    </nav>
+      </nav>
+    </div>
   </header>
 
-  {% if messages %}
-    <ul>
-      {% for mensagem in messages %}
-        <li>{{ mensagem }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+  <main class="container">
+    {% if messages %}
+      <ul class="mensagens">
+        {% for mensagem in messages %}
+          <li class="{{ mensagem.tags }}">{{ mensagem }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
 
-  <main>
     {% block conteudo %}{% endblock %}
   </main>
 
-  <footer>
+  <footer class="rodape">
     <p>IFPB - {% now "Y" %}</p>
   </footer>
 </body>

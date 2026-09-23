@@ -3,16 +3,18 @@
 {% block titulo %}Entrar - {{ block.super }}{% endblock %}
 
 {% block conteudo %}
-  <h2>Entrar</h2>
+  <section class="caixa estreita">
+    <h2>Entrar</h2>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    {% if next %}
-      <input type="hidden" name="next" value="{{ next }}">
-    {% endif %}
-    <button type="submit">Entrar</button>
-  </form>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+      {% endif %}
+      <button type="submit">Entrar</button>
+    </form>
 
-  <p><a href="{% url 'cadastro' %}">Criar conta</a></p>
+    <p class="discreto">Ainda não tem conta? <a href="{% url 'cadastro' %}">Criar conta</a></p>
+  </section>
 {% endblock %}

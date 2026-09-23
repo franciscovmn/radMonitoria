@@ -3,18 +3,37 @@
 {% block titulo %}Dúvidas - {{ block.super }}{% endblock %}
 
 {% block conteudo %}
-  <h2>Dúvidas</h2>
+  <div class="cabecalho">
+    <h2>Dúvidas</h2>
+    <a class="botao" href="{% url 'duvidas:nova' %}">Abrir dúvida</a>
+  </div>
 
-  <ul>
-    {% for duvida in duvidas %}
-      <li>
-        <a href="{% url 'duvidas:detalhe' duvida.pk %}">{{ duvida.titulo }}</a> - {{ duvida.disciplina.nome }} -
-        {{ duvida.autor.username }} -
-        Monitor: {{ duvida.monitor.username|default:"Nenhum" }} -
-        {{ duvida.get_situacao_display }}
-      </li>
-    {% empty %}
-      <li>Nenhuma dúvida encontrada.</li>
-    {% endfor %}
-  </ul>
+  <section class="caixa tabela">
+    <table>
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Disciplina</th>
+          <th>Autor</th>
+          <th>Monitor</th>
+          <th>Situação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for duvida in duvidas %}
+          <tr>
+            <td><a href="{% url 'duvidas:detalhe' duvida.pk %}">{{ duvida.titulo }}</a></td>
+            <td>{{ duvida.disciplina.nome }}</td>
+            <td>{{ duvida.autor.username }}</td>
+            <td>{{ duvida.monitor.username|default:"Nenhum" }}</td>
+            <td><span class="situacao situacao-{{ duvida.situacao }}">{{ duvida.get_situacao_display }}</span></td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">Nenhuma dúvida encontrada.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
 {% endblock %}

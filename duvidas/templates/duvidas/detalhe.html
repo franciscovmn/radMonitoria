@@ -3,35 +3,63 @@
 {% block titulo %}{{ duvida.titulo }} - {{ block.super }}{% endblock %}
 
 {% block conteudo %}
-  <h2>{{ duvida.titulo }}</h2>
-  <p>{{ duvida.descricao }}</p>
-  <p>Disciplina: {{ duvida.disciplina.nome }}</p>
-  <p>Autor: {{ duvida.autor.username }}</p>
-  <p>Monitor responsável: {{ duvida.monitor.username|default:"Nenhum" }}</p>
-  <p>Situação: {{ duvida.get_situacao_display }}</p>
-  <p>Aberta em: {{ duvida.criada_em }}</p>
-  <p>Atualizada em: {{ duvida.atualizada_em }}</p>
+  <p><a href="{% url 'duvidas:lista' %}">Voltar para as dúvidas</a></p>
+
+  <section class="caixa">
+    <div class="cabecalho">
+      <h2>{{ duvida.titulo }}</h2>
+      <span class="situacao situacao-{{ duvida.situacao }}">{{ duvida.get_situacao_display }}</span>
+    </div>
+
+    <p class="texto">{{ duvida.descricao }}</p>
+
+    <dl class="dados">
+      <dt>Disciplina</dt>
+      <dd>{{ duvida.disciplina.nome }}</dd>
+      <dt>Autor</dt>
+      <dd>{{ duvida.autor.username }}</dd>
+      <dt>Monitor responsável</dt>
+      <dd>{{ duvida.monitor.username|default:"Nenhum" }}</dd>
+      <dt>Aberta em</dt>
+      <dd>{{ duvida.criada_em|date:"d/m/Y H:i" }}</dd>
+      <dt>Atualizada em</dt>
+      <dd>{{ duvida.atualizada_em|date:"d/m/Y H:i" }}</dd>
+    </dl>
+  </section>
+
   {% if duvida.resposta %}
-    <h3>Resposta</h3>
-    <p>{{ duvida.resposta }}</p>
+    <section class="caixa resposta">
+      <h3>Resposta</h3>
+      <p class="texto">{{ duvida.resposta }}</p>
+    </section>
   {% endif %}
+
   {% if pode_assumir %}
-    <form action="{% url 'duvidas:assumir' duvida.pk %}" method="post">
-      {% csrf_token %}
-      <button type="submit">Assumir</button>
-    </form>
+    <section class="caixa acoes">
+      <form action="{% url 'duvidas:assumir' duvida.pk %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Assumir</button>
+      </form>
+    </section>
   {% endif %}
+
   {% if pode_responder %}
-    <form action="{% url 'duvidas:responder' duvida.pk %}" method="post">
-      {% csrf_token %}
-      {{ form_resposta.as_p }}
-      <button type="submit">Responder</button>
-    </form>
+    <section class="caixa acoes">
+      <form action="{% url 'duvidas:responder' duvida.pk %}" method="post">
+        {% csrf_token %}
+        {{ form_resposta.as_p }}
+        <button type="submit">Responder</button>
+      </form>
+    </section>
   {% endif %}
+
   {% if pode_encerrar %}
-    <form action="{% url 'duvidas:encerrar' duvida.pk %}" method="post">
-      {% csrf_token %}
-      <button type="submit">Encerrar</button>
-    </form>
+    <section class="caixa acoes">
+      <p>Sua dúvida foi resolvida?</p>
+      <form action="{% url 'duvidas:encerrar' duvida.pk %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Encerrar</button>
+      </form>
+    </section>
   {% endif %}
 {% endblock %}

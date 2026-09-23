@@ -3,11 +3,15 @@
 {% block titulo %}Cadastro - {{ block.super }}{% endblock %}
 
 {% block conteudo %}
-  <h2>Cadastro</h2>
+  <section class="caixa estreita">
+    <h2>Cadastro</h2>
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Cadastrar</button>
-  </form>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Cadastrar</button>
+    </form>
+
+    <p class="discreto">Já tem conta? <a href="{% url 'login' %}">Entrar</a></p>
+  </section>
 {% endblock %}
