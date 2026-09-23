@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block titulo %}Abrir dúvida - {{ block.super }}{% endblock %}
+
+{% block conteudo %}
+  <h2>Abrir dúvida</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Abrir dúvida</button>
+  </form>
+{% endblock %}
