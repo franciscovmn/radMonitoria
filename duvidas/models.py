@@ -77,6 +77,15 @@ class Duvida(models.Model):
     def __str__(self):
         return self.titulo
 
+    def eh_monitor_da_disciplina(self, usuario):
+        return self.disciplina.monitores.filter(pk=usuario.pk).exists()
+
+    def pode_ser_assumida_por(self, usuario):
+        return (
+            self.situacao == self.Situacao.ABERTA
+            and self.eh_monitor_da_disciplina(usuario)
+        )
+
 
 class HorarioAtendimento(models.Model):
     class DiaSemana(models.IntegerChoices):

@@ -1,5 +1,9 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.http import HttpResponseNotAllowed
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
@@ -65,8 +69,31 @@ class DuvidaDetailView(LoginRequiredMixin, DetailView):
     template_name = "duvidas/detalhe.html"
     context_object_name = "duvida"
 
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["pode_assumir"] = self.object.pode_ser_assumida_por(self.request.user)
+        return contexto
+
     def get_queryset(self):
         return Duvida.objects.filter(
             Q(pk__in=Duvida.objects.visiveis_para(self.request.user))
             | Q(situacao__in=[Duvida.Situacao.RESPONDIDA, Duvida.Situacao.ENCERRADA])
         ).select_related("disciplina", "autor", "monitor")
+
+
+@login_required
+def assumir_duvida(request, pk):
+    duvida = get_object_or_404(Duvida, pk=pk)
+    if not duvida.eh_monitor_da_disciplina(request.user):
+        raise PermissionDenied
+    if not duvida.pode_ser_assumida_por(request.user):
+        messages.error(request, "Esta dúvida não está aberta.")
+        return redirect("duvidas:detalhe", pk=pk)
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    duvida.monitor = request.user
+    duvida.situacao = Duvida.Situacao.EM_ATENDIMENTO
+    duvida.save(update_fields=["monitor", "situacao", "atualizada_em"])
+    messages.success(request, "Dúvida assumida.")
+    return redirect("duvidas:detalhe", pk=pk)

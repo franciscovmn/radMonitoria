@@ -15,4 +15,10 @@
     <h3>Resposta</h3>
     <p>{{ duvida.resposta }}</p>
   {% endif %}
+  {% if pode_assumir %}
+    <form action="{% url 'duvidas:assumir' duvida.pk %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Assumir</button>
+    </form>
+  {% endif %}
 {% endblock %}
