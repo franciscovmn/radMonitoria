@@ -31,10 +31,8 @@ Os alunos estão no grupo `Alunos`. O professor está no grupo `Professores`, qu
 
 ## Requisitos pendentes
 
-- RF4: as três visões da lista
-- RF5: assumir o atendimento
-- RF6: responder
-- RF7: encerrar
-- RF8: base de conhecimento
-- RF9: a interface reflete o papel
-- Desafio: tela para o monitor cadastrar seus horários
+Nenhum.
+
+## Método HTTP das ações
+
+Assumir, responder e encerrar alteram a situação da dúvida. Por isso, essas ações usam POST com token CSRF. GET serve apenas para consultar informações e não deve alterar dados.
