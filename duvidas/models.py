@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -63,3 +64,53 @@ class Duvida(models.Model):
 
     def __str__(self):
         return self.titulo
+
+
+class HorarioAtendimento(models.Model):
+    class DiaSemana(models.IntegerChoices):
+        SEGUNDA = 0, "Segunda-feira"
+        TERCA = 1, "Terça-feira"
+        QUARTA = 2, "Quarta-feira"
+        QUINTA = 3, "Quinta-feira"
+        SEXTA = 4, "Sexta-feira"
+        SABADO = 5, "Sábado"
+
+    monitor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="horarios_atendimento",
+    )
+    disciplina = models.ForeignKey(
+        Disciplina, on_delete=models.CASCADE, related_name="horarios"
+    )
+    dia_semana = models.IntegerField("dia da semana", choices=DiaSemana.choices)
+    inicio = models.TimeField("início")
+    fim = models.TimeField()
+
+    class Meta:
+        ordering = ["dia_semana", "inicio"]
+        verbose_name = "horário de atendimento"
+        verbose_name_plural = "horários de atendimento"
+
+    def __str__(self):
+        return f"{self.get_dia_semana_display()} {self.inicio:%H:%M} às {self.fim:%H:%M}"
+
+    def clean(self):
+        if self.inicio is None or self.fim is None or self.dia_semana is None:
+            return
+        if self.fim <= self.inicio:
+            raise ValidationError({"fim": "O fim precisa ser depois do início."})
+        if not self.monitor_id or not self.disciplina_id:
+            return
+
+        if not self.disciplina.monitores.filter(pk=self.monitor_id).exists():
+            raise ValidationError({"disciplina": "Você não é monitor desta disciplina."})
+
+        conflito = HorarioAtendimento.objects.filter(
+            monitor_id=self.monitor_id,
+            dia_semana=self.dia_semana,
+            inicio__lt=self.fim,
+            fim__gt=self.inicio,
+        ).exclude(pk=self.pk)
+        if conflito.exists():
+            raise ValidationError("Já existe um horário seu nesse dia que se sobrepõe a este.")
